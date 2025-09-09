@@ -1,0 +1,28 @@
+{
+  "frequency_minutes": 60,
+  "db_type": "postgresql",
+  "db_host": "localhost",
+  "db_port": 5432,
+  "db_user": "myuser",
+  "db_pass": "mypassword",
+  "db_name": "mydatabase",
+
+  "source_table": "raw_events",
+  "target_table": "processed_events",
+  "watchdog_table": "etl_watchdog",
+
+  "log_level": "INFO",
+"dry_run": true,
+
+"wrangling": [
+    { "name": "drop_nulls" },
+    { "name": "rename", "mapping": {"old_name": "new_name"} },
+    { "name": "add_column", "new_col": "processed_flag", "value": 1 }
+],
+"filtering": [
+    { "name": "filter", "col": "value", "op": ">=", "val": 10 },
+    { "name": "filter", "col": "status", "op": "==", "val": "ACTIVE" }
+]
+
+
+}
