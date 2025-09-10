@@ -6,14 +6,16 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 
-from logger_setup import setup_logging
-from config_loader import load_config
-from db_connector import DBConnector
-from data_wrangler import DataWrangler
-from data_filter import DataFilter
-from data_extractor import DataExtractor
-from data_loader import DataLoader
-from watchdog import WatchdogLogger
+from src.logger_setup import setup_logging
+from src.config_loader import load_config
+from src.db_connector import DBConnector
+
+from src.data.data_wrangler import DataWrangler
+from src.data.data_filter import DataFilter
+from src.data.data_extractor import DataExtractor
+from src.data.data_loader import DataLoader
+
+from src.watchdog import WatchdogLogger
 
 # -------------------------
 # Main ETL Process
