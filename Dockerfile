@@ -16,8 +16,17 @@ FROM base AS project
 
 WORKDIR /app
 
-# Copy your project code
-COPY . .
+# Copy project files
+COPY src/ src/
+COPY config/ config/
+COPY README.md README.md
+COPY Dockerfile Dockerfile
+COPY requirements.txt requirements.txt
+COPY doc/ doc/
 
-# Entrypoint
-CMD ["python", "etl_main.py"]
+# Make src a package entry point
+ENV PYTHONPATH=/app
+
+# Run main.py as a module
+CMD ["python", "-m", "src.main"]
+

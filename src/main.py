@@ -4,6 +4,8 @@ import time
 import psutil
 import psycopg2
 import pandas as pd
+import argparse
+
 from datetime import datetime
 
 from src.logger_setup import setup_logging
@@ -53,6 +55,18 @@ def run_etl(cfg: dict):
 # Entrypoint
 # -------------------------
 if __name__ == "__main__":
-    cfg = load_config("config.json")
+
+    parser = argparse.ArgumentParser(description="Run ETL with given config file")
+    parser.add_argument(
+        "-c", "--config",
+        type=str,
+        required=True,
+        help="Path to config JSON file"
+    )
+    args = parser.parse_args()
+
+    cfg = load_config(args.config)
+
+    cfg = load_config("config/config.json")
     setup_logging(cfg.get("log_level", "INFO"))
     run_etl(cfg)
