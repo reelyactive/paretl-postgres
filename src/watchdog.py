@@ -2,6 +2,7 @@ import time
 import logging
 from datetime import datetime
 import psutil
+from sqlalchemy import create_engine, inspect, text
 
 class WatchdogLogger:
     """
@@ -11,25 +12,45 @@ class WatchdogLogger:
     def __init__(self, conn, cfg: dict):
         self.conn = conn
         self.cfg = cfg
+        self.table = cfg.get("watchdog_table", "etl_watchdog")  # default fallback
+        
+        # Check if table exists
+        with self.conn.cursor() as cur:
+            cur.execute(f"SELECT to_regclass('public.{self.table}')")
+            exists = cur.fetchone()[0] is not None
 
+        # Create table if missing
+        if not exists:
+            with self.conn.cursor() as cur:
+                cur.execute(f"""
+                    CREATE TABLE {self.table} (
+                        ts TIMESTAMP NOT NULL,
+                        rows INTEGER NOT NULL,
+                        duration_sec NUMERIC,
+                        cpu_percent NUMERIC,
+                        memory_mb NUMERIC
+                    )
+                """)
+                self.conn.commit()
+        
     def log(self, row_count: int, start_time: float):
         duration = time.time() - start_time
         stats = {
-            "ts": datetime(),
+            "ts": datetime.now(),
             "rows": row_count,
             "duration_sec": duration,
             "cpu_percent": psutil.cpu_percent(),
-            "mem_mb": psutil.virtual_memory().used / (1024 * 1024)
+            "memory_mb": psutil.virtual_memory().used / (1024 * 1024)
         }
 
         try:
             with self.conn.cursor() as cur:
                 cur.execute(
                     f"INSERT INTO {self.cfg['watchdog_table']} "
-                    f"(ts, rows, duration_sec, cpu_percent, mem_mb) "
+                    f"(ts, rows, duration_sec, cpu_percent, memory_mb) "
                     f"VALUES (%s, %s, %s, %s, %s)",
                     (stats["ts"], stats["rows"], stats["duration_sec"],
-                     stats["cpu_percent"], stats["mem_mb"])
+                     stats["cpu_percent"], stats["memory_mb"])
                 )
             self.conn.commit()
             logging.info(f"[Watchdog] Logged ETL stats: {stats}")

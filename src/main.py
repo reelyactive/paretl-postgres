@@ -6,6 +6,7 @@ import psycopg2
 import pandas as pd
 import argparse
 
+from sqlalchemy import engine, create_engine
 from datetime import datetime
 
 from src.logger_setup import setup_logging
@@ -70,3 +71,8 @@ if __name__ == "__main__":
     cfg = load_config("config/config.json")
     setup_logging(cfg.get("log_level", "INFO"))
     run_etl(cfg)
+    logging.info("Process completed.")
+    logging.info("Yippee-ki-yay.")
+
+    
+

@@ -12,10 +12,28 @@ class DataExtractor:
         self.cfg = cfg
 
     def extract(self) -> pd.DataFrame:
-        freq_minutes = int(self.cfg.get("frequency_minutes", 60))
-        end_ts = datetime.utcnow()
-        start_ts = end_ts - timedelta(minutes=freq_minutes)
+        # Determine time window for data extraction 
 
+        with self.conn.cursor() as cur:
+            cur.execute(f"SELECT MIN(timestamp), MAX(timestamp) FROM {self.cfg['source_table']}")
+            min_ts, max_ts = cur.fetchone()
+            print(min_ts, max_ts)
+
+        # Try to read start and end from config
+        start_ts = self.cfg.get("start_ts")  # expect ISO string or None
+        end_ts = self.cfg.get("end_ts")
+
+        if start_ts and end_ts:
+            # Parse strings to datetime if needed
+            start_ts = datetime.fromisoformat(start_ts) if isinstance(start_ts, str) else start_ts
+            end_ts = datetime.fromisoformat(end_ts) if isinstance(end_ts, str) else end_ts
+        else:
+            # Fallback: use frequency
+            freq_minutes = int(self.cfg.get("frequency_minutes", 60))
+            end_ts = datetime.now()
+            start_ts = end_ts - timedelta(minutes=freq_minutes)
+
+        # Construct and execute query
         query = f"""
             SELECT * FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s

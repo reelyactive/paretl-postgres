@@ -5,7 +5,8 @@ python -m src.main -c config/config.json
 # Set up the dev env
 conda create -n myenv python=3.12
 conda activate myenv
-conda install numpy pandas plotly matplotlib nbformat
+conda install numpy pandas plotly matplotlib nbformat psycopg2
+
 
 # Build and run the docker
 docker build -t etl_app .
