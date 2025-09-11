@@ -41,13 +41,13 @@ def run_etl(cfg: dict):
         filterer = DataFilter(cfg.get("filtering", []), dry_run=cfg.get("dry_run", False))
         df = filterer.apply(df)
 
-        # Loading data
-        loader = DataLoader(cfg)
-        loader.load(df)
-
         # Watch dog
         watchdog = WatchdogLogger(conn, cfg)
-        watchdog.log(len(df), start_time)
+        watchdog_id = watchdog.log(len(df), start_time)
+
+        # Loading data
+        loader = DataLoader(cfg)
+        loader.load(df, watchdog_id)
 
         # Final commit
         conn.commit()
@@ -67,8 +67,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cfg = load_config(args.config)
-
-    cfg = load_config("config/config.json")
+    #cfg = load_config("config/config.json")
     setup_logging(cfg.get("log_level", "INFO"))
     run_etl(cfg)
     logging.info("Process completed.")

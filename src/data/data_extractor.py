@@ -17,7 +17,7 @@ class DataExtractor:
         with self.conn.cursor() as cur:
             cur.execute(f"SELECT MIN(timestamp), MAX(timestamp) FROM {self.cfg['source_table']}")
             min_ts, max_ts = cur.fetchone()
-            print(min_ts, max_ts)
+            logging.info(f"[Extractor] Available time window between {min_ts} and {max_ts}")
 
         # Try to read start and end from config
         start_ts = self.cfg.get("start_ts")  # expect ISO string or None

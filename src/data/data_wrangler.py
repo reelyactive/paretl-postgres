@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+from tabulate import tabulate
 
 class DataWrangler:
     """
@@ -15,36 +16,63 @@ class DataWrangler:
         self.dry_run = dry_run
 
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
-        logging.info(f"[Wrangler] Input shape: {df.shape}")
-        for step in self.steps:
-            action = step.get("name", "").lower()
-            logging.info(f"[Wrangler] Applying step: {action}")
+        logging.info(f"[Wrangler] Data shape:\n" + tabulate(
+                df.head(3),
+                headers="keys",
+                tablefmt="psql",
+                showindex=False
+            ))
+        
+        # Convert timestamp to datetime
+        logging.info(f"[Wrangler] Converting timestamp to datetime...")
+        df["timestamp"] = pd.to_datetime(df["timestamp"], format="%b %d, %Y @ %H:%M:%S.%f")
 
-            if action == "drop_nulls":
-                before = len(df)
-                if not self.dry_run:
-                    df = df.dropna()
-                logging.info(f"[Wrangler] Would drop {before - len(df)} rows with nulls")
+        # Ensure RSSI is integer
+        logging.info(f"[Wrangler] Ensuring RSSI is integer...")
+        df["rssi"] = df["rssi"].astype(int)
 
-            elif action == "rename":
-                mapping = step.get("mapping", {})
-                if not self.dry_run:
-                    df = df.rename(columns=mapping)
-                logging.info(f"[Wrangler] Would rename columns: {mapping}")
+        # Ensure IDs are strings
+        logging.info(f"[Wrangler] Ensuring IDs are strings...") 
+        df["transmitterid"] = df["transmitterid"].astype(str)
+        df["receiverid"] = df["receiverid"].astype(str)
+          
+        # Number of measurements per transmitter
+        logging.info(f"[Wrangler] Calculating number of measurements per transmitter...") 
+        df_metrics = (
+            df.groupby("transmitterid")
+            .agg(
+                nb_counts=("numberofdecodings", "sum"),
+                min_time=("timestamp", "min"),
+                max_time=("timestamp", "max"),
+                max_rssi=("rssi", "max"))
+            .reset_index()  
+        )
 
-            elif action == "select_columns":
-                cols = step.get("columns", [])
-                if not self.dry_run:
-                    df = df[cols]
-                logging.info(f"[Wrangler] Would select columns: {cols}")
+        # Calculate max-min time for each transmitter
+        logging.info(f"[Wrangler] Calculating time window and max RSSI per transmitter...") 
+        df_metrics["time_window"] = (df_metrics["max_time"] - df_metrics["min_time"]).dt.total_seconds()
+        df = df.merge(df_metrics[["transmitterid", "time_window", "max_rssi", "nb_counts"]], on="transmitterid", how="left")
+        del df_metrics
 
-            elif action == "add_column":
-                col, val = step["new_col"], step["value"]
-                if not self.dry_run:
-                    df[col] = val
-                logging.info(f"[Wrangler] Would add column '{col}' with value {val}")
-
-            else:
-                logging.warning(f"[Wrangler] Unknown action skipped: {action}")
-        logging.info(f"[Wrangler] Output shape: {df.shape}")
+        # Second character in the mac address
+        logging.info(f"[Wrangler] Extracting second character of transmitterId...") 
+        unique_ids = df["transmitterid"].unique().tolist()
+        df_metrics = pd.DataFrame(
+            [list(uid) for uid in unique_ids], 
+            columns=[f"char_{i}" for i in range(len(unique_ids[0]))]
+        )
+        df_metrics = df_metrics[["char_1"]]
+        df_metrics = df_metrics.rename(columns={"char_1": "digit_2"})
+        df_metrics["transmitterid"] = unique_ids
+        del unique_ids
+        df = df.merge(df_metrics, on="transmitterid", how="left")
+        del df_metrics  
+            
+        logging.info(f"[Wrangler] Data shape:\n" + tabulate(
+                df.head(3),
+                headers="keys",
+                tablefmt="psql",
+                showindex=False
+            ))
+    
         return df

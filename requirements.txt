@@ -2,3 +2,8 @@ pandas
 psycopg2-binary
 sqlalchemy
 psutil
+tabulate
+logging
+argparse
+
+

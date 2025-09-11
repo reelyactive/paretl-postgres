@@ -29,7 +29,7 @@ class DataLoader:
 
         return create_engine(url)
 
-    def load(self, df: pd.DataFrame):
+    def load(self, df: pd.DataFrame, watchdog_id: int):
         table = self.cfg["target_table"]
         inspector = inspect(self.engine)
         table_exists = table in inspector.get_table_names()
@@ -38,5 +38,11 @@ class DataLoader:
             logging.info(f"[Loader] Table '{table}' does not exist. It will be created.")
         else:
             logging.info(f"[Loader] Table '{table}' exists. Appending data.")
+
+        # Add watchdog_id column if provided
+        if watchdog_id is not None:
+            df["watchdog_id"] = watchdog_id
+        else:
+            raise ValueError("watchdog_id must be provided to load method.")
 
         df.to_sql(table, self.engine, if_exists="append", index=False)

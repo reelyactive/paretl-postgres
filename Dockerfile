@@ -18,7 +18,6 @@ WORKDIR /app
 
 # Copy project files
 COPY src/ src/
-COPY config/ config/
 COPY README.md README.md
 COPY Dockerfile Dockerfile
 COPY requirements.txt requirements.txt

@@ -2,7 +2,7 @@
   "start_ts": "2025-06-13 09:00:00",
   "end_ts": "2025-06-13 10:00:00",
   "db_type": "postgresql",
-  "db_host": "localhost",
+"db_host": "host.docker.internal",
   "db_port": 5432,
   "db_user": "reelyactive",
   "db_pass": "paretoanywhere",
@@ -13,17 +13,12 @@
   "watchdog_table": "etl_watchdog",
 
   "log_level": "INFO",
-"dry_run": true,
+"dry_run": false,
 
-"wrangling": [
-    { "name": "drop_nulls" },
-    { "name": "rename", "mapping": {"old_name": "new_name"} },
-    { "name": "add_column", "new_col": "processed_flag", "value": 1 }
-],
 "filtering": [
-    { "name": "filter", "col": "value", "op": ">=", "val": 10 },
-    { "name": "filter", "col": "status", "op": "==", "val": "ACTIVE" }
+    { "name": "Nb. of observations", "col": "nb_counts", "op": ">=", "val": 2 },
+    { "name": "Max RSSI", "col": "max_rssi", "op": ">=", "val": -60 },
+    { "name": "Private adress", "col": "digit_2", "op": "in", "val": ["2", "6", "a", "e"] }
 ]
-
-
 }
+

@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 import psutil
 from sqlalchemy import create_engine, inspect, text
+from tabulate import tabulate
 
 class WatchdogLogger:
     """
@@ -24,6 +25,7 @@ class WatchdogLogger:
             with self.conn.cursor() as cur:
                 cur.execute(f"""
                     CREATE TABLE {self.table} (
+                        id SERIAL PRIMARY KEY,
                         ts TIMESTAMP NOT NULL,
                         rows INTEGER NOT NULL,
                         duration_sec NUMERIC,
@@ -36,11 +38,11 @@ class WatchdogLogger:
     def log(self, row_count: int, start_time: float):
         duration = time.time() - start_time
         stats = {
-            "ts": datetime.now(),
+            "ts": datetime.now().replace(microsecond=0),   # remove microseconds
             "rows": row_count,
-            "duration_sec": duration,
-            "cpu_percent": psutil.cpu_percent(),
-            "memory_mb": psutil.virtual_memory().used / (1024 * 1024)
+            "duration_sec": round(duration, 1),            # 2 decimal places
+            "cpu_percent": round(psutil.cpu_percent(), 1), # 1 decimal place
+            "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024))
         }
 
         try:
@@ -48,12 +50,16 @@ class WatchdogLogger:
                 cur.execute(
                     f"INSERT INTO {self.cfg['watchdog_table']} "
                     f"(ts, rows, duration_sec, cpu_percent, memory_mb) "
-                    f"VALUES (%s, %s, %s, %s, %s)",
+                    f"VALUES (%s, %s, %s, %s, %s) RETURNING id",
                     (stats["ts"], stats["rows"], stats["duration_sec"],
                      stats["cpu_percent"], stats["memory_mb"])
                 )
-            self.conn.commit()
-            logging.info(f"[Watchdog] Logged ETL stats: {stats}")
+                watchdog_id = cur.fetchone()[0]
+            self.conn.commit()            
+            
+            logging.info(f"[Watchdog] Logged ETL stats:\n" + tabulate(stats.items(), headers=["Metric", "Value"], tablefmt="pretty"))
+    
+            return watchdog_id
         except Exception as e:
             logging.error(f"[Watchdog] Failed to log stats: {e}")
             self.conn.rollback()

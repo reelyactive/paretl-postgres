@@ -14,15 +14,9 @@
   "log_level": "INFO",
 "dry_run": true,
 
-"wrangling": [
-    { "name": "drop_nulls" },
-    { "name": "rename", "mapping": {"old_name": "new_name"} },
-    { "name": "add_column", "new_col": "processed_flag", "value": 1 }
-],
 "filtering": [
-    { "name": "filter", "col": "value", "op": ">=", "val": 10 },
-    { "name": "filter", "col": "status", "op": "==", "val": "ACTIVE" }
+    { "name": "Nb. of observations", "col": "nb_counts", "op": ">=", "val": 2 },
+    { "name": "Max RSSI", "col": "max_rssi", "op": ">=", "val": -60 },
+    { "name": "Private adress", "col": "digit_2", "op": "in", "val": ["2", "6", "a", "e"] }
 ]
-
-
 }

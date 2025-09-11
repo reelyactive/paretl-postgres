@@ -17,24 +17,23 @@ class DataFilter:
             action = step.get("name", "").lower()
             logging.info(f"[Filter] Applying step: {action}")
 
-            if action == "filter":
-                col, op, val = step["col"], step["op"], step["val"]
-                before = len(df)
+            col, op, val = step["col"], step["op"], step["val"]
+            before = len(df)
+   
+            if not self.dry_run:
+                if op == "==":   df = df[df[col] == val]
+                elif op == "!=": df = df[df[col] != val]
+                elif op == ">":  df = df[df[col] >  val]
+                elif op == ">=": df = df[df[col] >= val]
+                elif op == "<":  df = df[df[col] <  val]
+                elif op == "<=": df = df[df[col] <= val]
+                elif op.lower() == "in":  df = df[df[col].isin(val)]
+                else:
+                    logging.error(f"[Filter] Unsupported operator: {op}")
+                    raise ValueError(f"Unsupported filter operator: {op}")
 
-                if not self.dry_run:
-                    if op == "==":   df = df[df[col] == val]
-                    elif op == "!=": df = df[df[col] != val]
-                    elif op == ">":  df = df[df[col] >  val]
-                    elif op == ">=": df = df[df[col] >= val]
-                    elif op == "<":  df = df[df[col] <  val]
-                    elif op == "<=": df = df[df[col] <= val]
-                    else:
-                        logging.error(f"[Filter] Unsupported operator: {op}")
-                        raise ValueError(f"Unsupported filter operator: {op}")
+            after = len(df)
+            logging.info(f"[Filter] Filter on {col} {op} {val}: {before} → {after} ({(after - before) / before:.1%})")
 
-                logging.info(f"[Filter] Would filter on {col} {op} {val} → {before - len(df)} rows removed")
-
-            else:
-                logging.warning(f"[Filter] Unknown action skipped: {action}")
         logging.info(f"[Filter] Output shape: {df.shape}")
         return df

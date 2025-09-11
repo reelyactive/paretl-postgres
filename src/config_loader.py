@@ -18,7 +18,7 @@ def load_config(path: str) -> dict:
 
     # Minimal required keys
     required_keys = [
-        "wrangling", "filtering","dry_run",
+        "filtering","dry_run",
         "db_type", "db_host", "db_port", "db_user", "db_pass", "db_name",
         "source_table", "target_table", "watchdog_table"
     ]

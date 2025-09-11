@@ -3,6 +3,7 @@
 # Testing implies:
 # (1) the creation of a postgresql DB
 # (2) the upload of the test dataset
+# (3) the test
 
 # (1.1) Install and start postgresql
 sudo apt update
@@ -42,8 +43,16 @@ FROM 'data.csv'
 DELIMITER ','
 CSV HEADER
 
-# Empty table if needed: TRUNCATE TABLE raddec;
-
+# Empty table if needed (truncate keep the structure, drop wipes it)
+sudo -i -u postgres
+psql
+\c pareto_anywhere
+\dt+
+TRUNCATE TABLE etl_raddec;
+TRUNCATE TABLE etl_watchdog; 
+DROP TABLE etl_raddec;
+DROP TABLE etl_watchdog;
+ 
 # (2.3) Checks
 \dt+
 SELECT COUNT(*) FROM raddec;
