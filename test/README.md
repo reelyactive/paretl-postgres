@@ -62,5 +62,9 @@ exit
 
 # (3.1) Run the ETL
 cd ..
+# For a local test (no docker) replace in the config.json
+# "db_host": "host.docker.internal",
+# by
+# "db_host": "localhost",
 python -m src.main -c config/config.json
 
