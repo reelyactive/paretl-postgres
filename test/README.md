@@ -39,9 +39,11 @@ CREATE TABLE raddec (
 
 # (2.2) Upload the test dataset
 \copy raddec(transmitterId, numberOfDecodings, receiverId, rssi, timestamp)
-FROM 'data.csv'
+FROM '/home/xavier/Desktop/Personnel/Travail/Analyste/Projets/Reelyactive/2025-01/paretl-postgres/test/data.csv'
 DELIMITER ','
 CSV HEADER
+
+
 
 # Empty table if needed (truncate keep the structure, drop wipes it)
 sudo -i -u postgres
@@ -56,7 +58,7 @@ DROP TABLE etl_watchdog;
 # (2.3) Checks
 \dt+
 SELECT COUNT(*) FROM raddec;
-SELECT COUNT(*) FROM raddec;
+SELECT * FROM raddec LIMIT 5;
 exit
 
 

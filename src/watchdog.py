@@ -4,6 +4,7 @@ from datetime import datetime
 import psutil
 from sqlalchemy import create_engine, inspect, text
 from tabulate import tabulate
+import pandas as pd
 
 class WatchdogLogger:
     """
@@ -26,33 +27,84 @@ class WatchdogLogger:
                 cur.execute(f"""
                     CREATE TABLE {self.table} (
                         id SERIAL PRIMARY KEY,
+                        event_name VARCHAR(255),
                         ts TIMESTAMP NOT NULL,
                         rows INTEGER NOT NULL,
                         duration_sec NUMERIC,
                         cpu_percent NUMERIC,
-                        memory_mb NUMERIC
+                        memory_mb NUMERIC,
+                        n_transmitters INTEGER,
+                        n_transmitters_per_day TEXT,
+                        median_time_window NUMERIC,
+                        mean_time_window NUMERIC,
+                        std_time_window NUMERIC
                     )
                 """)
                 self.conn.commit()
         
-    def log(self, row_count: int, start_time: float):
+    def log(self, df: pd.DataFrame, start_time: float):
+        
+        # Number of rows processed
+        row_count = len(df)
+        # Duration of the ETL process
         duration = time.time() - start_time
+        # Number of unique transmitters
+        n_transmitters = df['transmitterid'].nunique()
+        # convert the timestamp to date
+        df['date'] = df['timestamp'].dt.date
+        # Number of unique transmitters per day
+        n_transmitters_per_day = df.groupby('date')['transmitterid'].nunique().to_dict()
+        # Gather in a string
+        n_transmitters_per_day = ", ".join([f"{k}: {v}" for k, v in n_transmitters_per_day.items()])
+        # Median time window
+        median_time_window = df['time_window'].median()
+        # Mean time window
+        mean_time_window = df['time_window'].mean() 
+        # standard deviation of time window
+        std_time_window = df['time_window'].std()
+        
         stats = {
+            "event_name": self.cfg.get("event_name", "unknown_event"),
             "ts": datetime.now().replace(microsecond=0),   # remove microseconds
             "rows": row_count,
             "duration_sec": round(duration, 1),            # 2 decimal places
             "cpu_percent": round(psutil.cpu_percent(), 1), # 1 decimal place
-            "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024))
+            "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024)),
+            "n_transmitters": n_transmitters,
+            "n_transmitters_per_day": n_transmitters_per_day,
+            "median_time_window": round(median_time_window, 1) ,
+            "mean_time_window": round(mean_time_window, 1),
+            "std_time_window": round(std_time_window, 1),
         }
 
         try:
+            
+            # Save locally as CSV
+            timestamp_str = stats["ts"].strftime("%Y-%m-%d_%Hh%M")
+            filename = f"paretl_{stats['event_name']}_{timestamp_str}.csv"
+            filename = filename.replace(" ", "_")
+
+            # Save
+            df_stats = pd.DataFrame([stats])
+            df_stats.to_csv(filename, index=False)
+            logging.info(f"[Watchdog] ETL stats saved in {filename}")
+
             with self.conn.cursor() as cur:
                 cur.execute(
                     f"INSERT INTO {self.cfg['watchdog_table']} "
-                    f"(ts, rows, duration_sec, cpu_percent, memory_mb) "
-                    f"VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                    (stats["ts"], stats["rows"], stats["duration_sec"],
-                     stats["cpu_percent"], stats["memory_mb"])
+                    f"(event_name, ts, rows, duration_sec, cpu_percent, memory_mb, n_transmitters, n_transmitters_per_day, median_time_window, mean_time_window, std_time_window) "
+                    f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                    ( stats["event_name"],
+                    stats["ts"], 
+                    stats["rows"],
+                    stats["duration_sec"],
+                    stats["cpu_percent"],
+                    stats["memory_mb"],
+                    stats["n_transmitters"],
+                    stats["n_transmitters_per_day"],
+                    stats["median_time_window"],
+                    stats["mean_time_window"],
+                    stats["std_time_window"])
                 )
                 watchdog_id = cur.fetchone()[0]
             self.conn.commit()            

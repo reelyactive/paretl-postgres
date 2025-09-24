@@ -43,7 +43,7 @@ def run_etl(cfg: dict):
 
         # Watch dog
         watchdog = WatchdogLogger(conn, cfg)
-        watchdog_id = watchdog.log(len(df), start_time)
+        watchdog_id = watchdog.log(df, start_time)
 
         # Loading data
         loader = DataLoader(cfg)

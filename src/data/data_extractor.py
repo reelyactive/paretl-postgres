@@ -33,18 +33,22 @@ class DataExtractor:
             end_ts = datetime.now()
             start_ts = end_ts - timedelta(minutes=freq_minutes)
 
-        # Construct and execute query
+        # Construct and execute query        
+        receivers = self.cfg['receivers_id']  # e.g. [1, 2, 3]
+        placeholders = ",".join(["%s"] * len(receivers))
         query = f"""
             SELECT * FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s
+            AND receiverid IN ({placeholders})
         """
+        params = [start_ts, end_ts] + receivers
 
         with self.conn.cursor() as cur:
-            cur.execute(query, (start_ts, end_ts))
+            cur.execute(query, params)
             rows = cur.fetchall()
             colnames = [desc[0] for desc in cur.description]
 
         df = pd.DataFrame(rows, columns=colnames)
-        logging.info(f"[Extractor] Extracted {len(df)} rows from {self.cfg['source_table']} "
-                     f"between {start_ts} and {end_ts}")
+        logging.info(f"[Extractor] Extracted for event {self.cfg['event_name']} {len(df)} rows from {self.cfg['source_table']} "
+                     f"between {start_ts} and {end_ts} for the receivers {receivers}")
         return df

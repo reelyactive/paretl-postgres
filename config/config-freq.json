@@ -1,5 +1,8 @@
 {
+"event_name": "F1 Montreal 2022",
   "frequency_minutes": 60,
+"receivers_id": ["02a3416dc4f7","02a3bd59e2dc","02a3e5351a16","02a37341e3ff","02a384aafe9f","02a38b484e43","02a3216020fe","02a364f334cb","02a302bd6d1e"],
+
   "db_type": "postgresql",
   "db_host": "localhost",
   "db_port": 5432,
@@ -15,8 +18,7 @@
 "dry_run": true,
 
 "filtering": [
-    { "name": "Nb. of observations", "col": "nb_counts", "op": ">=", "val": 2 },
-    { "name": "Max RSSI", "col": "max_rssi", "op": ">=", "val": -60 },
-    { "name": "Private adress", "col": "digit_2", "op": "in", "val": ["2", "6", "a", "e"] }
+   { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
 ]
 }

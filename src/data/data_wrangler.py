@@ -63,6 +63,8 @@ class DataWrangler:
         )
         df_metrics = df_metrics[["char_1"]]
         df_metrics = df_metrics.rename(columns={"char_1": "digit_2"})
+        private_set = {"a", "e", "2", "6"}
+        df_metrics["isPrivate"] = df_metrics["digit_2"].isin(private_set)
         df_metrics["transmitterid"] = unique_ids
         del unique_ids
         df = df.merge(df_metrics, on="transmitterid", how="left")

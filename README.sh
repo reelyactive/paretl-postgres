@@ -24,9 +24,16 @@ sudo docker container prune -f
 # Then remove all untagged images
 sudo docker rmi $(sudo docker images | awk '/<none>/ {print $3}')
 
+# Stop all running containers first (optional if none running)
+# Remove all containers
+# Remove all images
+sudo docker stop $(sudo docker ps -aq)
+sudo docker rm $(sudo docker ps -aq)
+sudo docker rmi -f $(sudo docker images -aq)
 
 docker.io/prudentxavier/paretl:latest
-docker pull prudentxavier/paretl:latest
+sudo docker pull prudentxavier/paretl:latest
+sudo docker images
 
 sudo docker run \
   --add-host=host.docker.internal:host-gateway \
