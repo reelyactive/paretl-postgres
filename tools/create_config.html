@@ -86,123 +86,44 @@
       "time_window", "max_rssi", "nb_counts", "digit_2", "isPrivate"
     ];
 
-    // dictionnaire EN/FR (inclut placeholders)
+    // dictionnaire EN/FR
     const dict = {
-      en: {
-        title: "Config JSON Generator",
-        generalTitle: "General",
-        lblEvent: "Event Name",
-        lblStart: "Start TS",
-        lblEnd: "End TS",
-        lblCSV: "Receivers (CSV)",
-        lblReceivers: "Receivers List:",
-        dbTitle: "Database Settings",
-        lblDBType: "DB Type",
-        lblHost: "Host",
-        lblPort: "Port",
-        lblUser: "User",
-        lblPass: "Password",
-        lblName: "Name",
-        tableTitle: "Tables",
-        lblSource: "Source Table",
-        lblTarget: "Target Table",
-        lblWatchdog: "Watchdog Table",
-        filterTitle: "Filters",
-        thName: "Name",
-        thColumn: "Column",
-        thOp: "Operator",
-        thVal: "Value",
-        btnGenerate: "Generate JSON",
-        outputTitle: "Generated JSON",
-        phFilterName: "Filter name",
-        phText: "Text value",
-        phNumber: "Numeric value"
-      },
-      fr: {
-        title: "Générateur de Config JSON",
-        generalTitle: "Général",
-        lblEvent: "Nom de l'événement",
-        lblStart: "Début",
-        lblEnd: "Fin",
-        lblCSV: "Récepteurs (CSV)",
-        lblReceivers: "Liste des récepteurs :",
-        dbTitle: "Paramètres Base de Données",
-        lblDBType: "Type de BD",
-        lblHost: "Hôte",
-        lblPort: "Port",
-        lblUser: "Utilisateur",
-        lblPass: "Mot de passe",
-        lblName: "Nom",
-        tableTitle: "Tables",
-        lblSource: "Table source",
-        lblTarget: "Table cible",
-        lblWatchdog: "Table de surveillance",
-        filterTitle: "Filtres",
-        thName: "Nom",
-        thColumn: "Colonne",
-        thOp: "Opérateur",
-        thVal: "Valeur",
-        btnGenerate: "Générer JSON",
-        outputTitle: "JSON Généré",
-        phFilterName: "Nom du filtre",
-        phText: "Valeur texte",
-        phNumber: "Valeur numérique"
-      }
+      en: { title: "Config JSON Generator", generalTitle: "General", lblEvent: "Event Name", lblStart: "Start TS", lblEnd: "End TS", lblCSV: "Receivers (CSV)", lblReceivers: "Receivers List:", dbTitle: "Database Settings", lblDBType: "DB Type", lblHost: "Host", lblPort: "Port", lblUser: "User", lblPass: "Password", lblName: "Name", tableTitle: "Tables", lblSource: "Source Table", lblTarget: "Target Table", lblWatchdog: "Watchdog Table", filterTitle: "Filters", thName: "Name", thColumn: "Column", thOp: "Operator", thVal: "Value", btnGenerate: "Generate JSON", outputTitle: "Generated JSON", phFilterName: "Filter name", phText: "Text value", phNumber: "Numeric value" },
+      fr: { title: "Générateur de Config JSON", generalTitle: "Général", lblEvent: "Nom de l'événement", lblStart: "Début", lblEnd: "Fin", lblCSV: "Récepteurs (CSV)", lblReceivers: "Liste des récepteurs :", dbTitle: "Paramètres Base de Données", lblDBType: "Type de BD", lblHost: "Hôte", lblPort: "Port", lblUser: "Utilisateur", lblPass: "Mot de passe", lblName: "Nom", tableTitle: "Tables", lblSource: "Table source", lblTarget: "Table cible", lblWatchdog: "Table de surveillance", filterTitle: "Filtres", thName: "Nom", thColumn: "Colonne", thOp: "Opérateur", thVal: "Valeur", btnGenerate: "Générer JSON", outputTitle: "JSON Généré", phFilterName: "Nom du filtre", phText: "Valeur texte", phNumber: "Valeur numérique" }
     };
 
     let currentLang = "en";
 
-   function switchLang() {
-  currentLang = (currentLang === "en") ? "fr" : "en";
-  const langData = dict[currentLang];
-
-  // Met à jour tous les labels et placeholders
-  document.getElementById("title").childNodes[0].nodeValue = langData.title + " ";
-  document.getElementById("generalTitle").textContent = langData.generalTitle;
-  document.getElementById("lblEvent").childNodes[0].nodeValue = langData.lblEvent + " ";
-  document.getElementById("lblStart").childNodes[0].nodeValue = langData.lblStart + " ";
-  document.getElementById("lblEnd").childNodes[0].nodeValue = langData.lblEnd + " ";
-  document.getElementById("lblCSV").childNodes[0].nodeValue = langData.lblCSV + " ";
-  document.getElementById("lblReceivers").textContent = langData.lblReceivers;
-
-  document.getElementById("dbTitle").textContent = langData.dbTitle;
-  document.getElementById("lblDBType").childNodes[0].nodeValue = langData.lblDBType + " ";
-  document.getElementById("lblHost").childNodes[0].nodeValue = langData.lblHost + " ";
-  document.getElementById("lblPort").childNodes[0].nodeValue = langData.lblPort + " ";
-  document.getElementById("lblUser").childNodes[0].nodeValue = langData.lblUser + " ";
-  document.getElementById("lblPass").childNodes[0].nodeValue = langData.lblPass + " ";
-  document.getElementById("lblName").childNodes[0].nodeValue = langData.lblName + " ";
-
-  document.getElementById("tableTitle").textContent = langData.tableTitle;
-  document.getElementById("lblSource").childNodes[0].nodeValue = langData.lblSource + " ";
-  document.getElementById("lblTarget").childNodes[0].nodeValue = langData.lblTarget + " ";
-  document.getElementById("lblWatchdog").childNodes[0].nodeValue = langData.lblWatchdog + " ";
-
-  document.getElementById("filterTitle").textContent = langData.filterTitle;
-  document.getElementById("thName").textContent = langData.thName;
-  document.getElementById("thColumn").textContent = langData.thColumn;
-  document.getElementById("thOp").textContent = langData.thOp;
-  document.getElementById("thVal").textContent = langData.thVal;
-
-  document.getElementById("btnGenerate").textContent = langData.btnGenerate;
-  document.getElementById("outputTitle").textContent = langData.outputTitle;
-
-  // Met à jour le drapeau
-  document.getElementById("langSwitch").textContent = (currentLang === "en") ? "🇫🇷" : "🇬🇧";
-
-  // Met à jour placeholders des filtres
-  document.querySelectorAll("#filterTable input").forEach(input=>{
-    if(input.placeholder.includes("Filter")||input.placeholder.includes("Nom")){
-      input.placeholder = langData.phFilterName;
-    } else if(input.type==="text"){
-      input.placeholder = langData.phText;
-    } else if(input.type==="number"){
-      input.placeholder = langData.phNumber;
+    function switchLang() {
+      currentLang = (currentLang === "en") ? "fr" : "en";
+      const langData = dict[currentLang];
+      document.getElementById("title").childNodes[0].nodeValue = langData.title + " ";
+      document.getElementById("generalTitle").textContent = langData.generalTitle;
+      document.getElementById("lblEvent").childNodes[0].nodeValue = langData.lblEvent + " ";
+      document.getElementById("lblStart").childNodes[0].nodeValue = langData.lblStart + " ";
+      document.getElementById("lblEnd").childNodes[0].nodeValue = langData.lblEnd + " ";
+      document.getElementById("lblCSV").childNodes[0].nodeValue = langData.lblCSV + " ";
+      document.getElementById("lblReceivers").textContent = langData.lblReceivers;
+      document.getElementById("dbTitle").textContent = langData.dbTitle;
+      document.getElementById("lblDBType").childNodes[0].nodeValue = langData.lblDBType + " ";
+      document.getElementById("lblHost").childNodes[0].nodeValue = langData.lblHost + " ";
+      document.getElementById("lblPort").childNodes[0].nodeValue = langData.lblPort + " ";
+      document.getElementById("lblUser").childNodes[0].nodeValue = langData.lblUser + " ";
+      document.getElementById("lblPass").childNodes[0].nodeValue = langData.lblPass + " ";
+      document.getElementById("lblName").childNodes[0].nodeValue = langData.lblName + " ";
+      document.getElementById("tableTitle").textContent = langData.tableTitle;
+      document.getElementById("lblSource").childNodes[0].nodeValue = langData.lblSource + " ";
+      document.getElementById("lblTarget").childNodes[0].nodeValue = langData.lblTarget + " ";
+      document.getElementById("lblWatchdog").childNodes[0].nodeValue = langData.lblWatchdog + " ";
+      document.getElementById("filterTitle").textContent = langData.filterTitle;
+      document.getElementById("thName").textContent = langData.thName;
+      document.getElementById("thColumn").textContent = langData.thColumn;
+      document.getElementById("thOp").textContent = langData.thOp;
+      document.getElementById("thVal").textContent = langData.thVal;
+      document.getElementById("btnGenerate").textContent = langData.btnGenerate;
+      document.getElementById("outputTitle").textContent = langData.outputTitle;
+      document.getElementById("langSwitch").textContent = (currentLang === "en") ? "🇫🇷" : "🇬🇧";
     }
-  });
-}
-
-
     document.getElementById("langSwitch").addEventListener("click", switchLang);
 
     function addFilter() {
@@ -292,6 +213,15 @@
       };
       const jsonStr = JSON.stringify(config, null, 2);
       document.getElementById("output").textContent = jsonStr;
+
+      // --- Téléchargement auto en fichier JSON ---
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "config.json";
+      a.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
