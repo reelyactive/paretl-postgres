@@ -164,12 +164,15 @@ Even though such a json file can easily be created using any text editor, you ar
 
 You will need a csv file with all the receivers, from which you can then pick the ones used at that event, for instance:
 
-| 02a3416dc4f7 |
-| 02a3bd59e2dc |
-| 02a3e5351a16 |
-| 02a37341e3ff |
-| 02a384aafe9f |
-| 02a38b484e43 |
+|                 |
+|-----------------|
+| 02a3416dc4f7    |
+| 02a3bd59e2dc    |
+| 02a3e5351a16    |
+| 02a37341e3ff    |
+| 02a384aafe9f    |
+| 02a38b484e43    |
+
 
 
 You can then add an arbitrary number of user defined filters.
