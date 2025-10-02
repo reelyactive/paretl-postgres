@@ -1,8 +1,17 @@
 {
-"event_name": "F1 Montreal 2022",
+"event_name": "Music festival 2025",
   "frequency_minutes": 60,
-"receivers_id": ["02a3416dc4f7","02a3bd59e2dc","02a3e5351a16","02a37341e3ff","02a384aafe9f","02a38b484e43","02a3216020fe","02a364f334cb","02a302bd6d1e"],
-
+"receivers_id": [
+    "02a346df7",
+    "02a3b59dc",
+    "02a3e3a16",
+    "02a73e3ff",
+    "02a3afe9f",
+    "02a3b4e43",
+    "0226020fe",
+    "a36f334cb",
+    "02a3d6d1e"
+  ],
   "db_type": "postgresql",
   "db_host": "localhost",
   "db_port": 5432,

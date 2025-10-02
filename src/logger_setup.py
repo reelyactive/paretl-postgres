@@ -1,7 +1,7 @@
 import logging
 
 # Configure logging
-def setup_logging(level: str = "INFO"):
+def setupLogging(level: str = "INFO"):
     """
     Configure application-wide logging.
     """
@@ -13,14 +13,14 @@ def setup_logging(level: str = "INFO"):
         "CRITICAL": logging.CRITICAL
     }
 
-    chosen_level = valid_levels.get(level.upper())
-    if chosen_level is None:
+    chosenLevel = valid_levels.get(level.upper())
+    if chosenLevel is None:
         raise ValueError(
             f"Invalid log level '{level}'. Must be one of: {list(valid_levels.keys())}"
         )
 
     logging.basicConfig(
-        level=chosen_level,
+        level=chosenLevel,
         format="%(asctime)s [%(levelname)s] %(message)s"
     )
     logging.info(f"Logging initialized at level {level.upper()}")

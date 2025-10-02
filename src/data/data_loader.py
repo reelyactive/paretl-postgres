@@ -32,9 +32,9 @@ class DataLoader:
     def load(self, df: pd.DataFrame, watchdog_id: int):
         table = self.cfg["target_table"]
         inspector = inspect(self.engine)
-        table_exists = table in inspector.get_table_names()
+        tableExists = table in inspector.get_table_names()
 
-        if not table_exists:
+        if not tableExists:
             logging.info(f"[Loader] Table '{table}' does not exist. It will be created.")
         else:
             logging.info(f"[Loader] Table '{table}' exists. Appending data.")

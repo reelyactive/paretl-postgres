@@ -1,7 +1,7 @@
 import os
 import json
 
-def load_config(path: str) -> dict:
+def loadConfig(path: str) -> dict:
     """
     Load and validate configuration from a JSON file.
     Returns a dictionary with configuration values.
@@ -17,25 +17,25 @@ def load_config(path: str) -> dict:
             raise ValueError(f"Invalid JSON format in {path}: {e}")
 
     # Minimal required keys
-    required_keys = [
+    requiredKeys = [
         "filtering","dry_run","receivers_id","event_name",
         "db_type", "db_host", "db_port", "db_user", "db_pass", "db_name",
         "source_table", "target_table", "watchdog_table"
     ]
-    missing = [k for k in required_keys if k not in cfg]
+    missing = [k for k in requiredKeys if k not in cfg]
     if missing:
         raise KeyError(f"Missing required config keys: {missing}")
 
     # Check frequency vs start/end
     freq = cfg.get("frequency_minutes")
-    start_ts = cfg.get("start_ts")
-    end_ts = cfg.get("end_ts")
+    startTs = cfg.get("start_ts")
+    endTs = cfg.get("end_ts")
 
-    if not freq and not (start_ts and end_ts):
-        missing_time_keys = ["frequency_minutes or (start_ts and end_ts)"]
-        missing.extend(missing_time_keys)
+    if not freq and not (startTs and endTs):
+        missingTimeKeys = ["frequency_minutes or (start_ts and end_ts)"]
+        missing.extend(missingTimeKeys)
 
-    if freq and (start_ts or end_ts):
+    if freq and (startTs or endTs):
         raise KeyError("Provide either 'frequency_minutes' OR both 'start_ts' and 'end_ts', not both.")
 
     if missing:

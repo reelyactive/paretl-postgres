@@ -51,6 +51,15 @@ Download the configuration file
   -v $(pwd)/config:/app/config \
   prudentxavier/paretl:latest python -m src.main -c config/config.json`
 
+If it fails, you may need to make the postgresql listen to the docker by adding the following lines:
+
+`sudo nano /etc/postgresql/16/main/postgresql.conf 
+listen_addresses = '*'
+sudo nano /etc/postgresql/16/main/pg_hba.conf 
+host all all 172.17.0.0/16 md5
+sudo systemctl restart postgresql`
+
+
 ## Using the plain code
 
 Make sure you have the following configuration (consider using a [dedicated environment](https://www.youtube.com/watch?v=IAvAlS0CuxI) like [anaconda](https://youtu.be/hVcEv7rEN24?si=xHN6zLnYidVYLEej)):
@@ -177,11 +186,147 @@ You will need a csv file with all the receivers, from which you can then pick th
 
 You can then add an arbitrary number of user defined filters.
 
-# Building the ETL
+# For the developers
 
-# Testing the ETL
+## Building the ETL docker image
 
-# Structure of the ETL
+Build the image and push it to the Docker hub
+
+`sudo docker build -t etl_app .`
+
+`sudo docker images`
+
+`sudo docker tag etl_app prudentxavier/paretl:latest`
+
+`sudo docker login -u prudentxavier`
+
+`sudo docker push prudentxavier/paretl:latest`
+
+Clean up your local docker from all images
+
+`sudo docker container prune -f`
+
+`sudo docker rmi $(sudo docker images | awk '/<none>/ {print $3}')`
+
+`sudo docker stop $(sudo docker ps -aq)`
+
+`sudo docker rm $(sudo docker ps -aq)`
+
+`sudo docker rmi -f $(sudo docker images -aq)`
+
+## Testing the ETL
+
+Testing implies:
+1. the creation of a postgresql DB
+2. the upload of the test dataset
+3. the test
+
+### (1.1) Install and start postgresql
+
+`sudo apt update`
+
+`sudo apt upgrade -y`
+
+`sudo apt install postgresql postgresql-contrib -y`
+
+`sudo systemctl enable postgresql`
+
+`sudo systemctl start postgresql`
+
+`sudo systemctl status postgresql`
+
+### (1.2) Create the user
+
+`sudo -i -u postgres`
+
+`psql -c "CREATE USER reelyactive WITH PASSWORD 'paretoanywhere';"`
+
+### (1.3) Create database owned by the user and grant privileges
+
+`psql -c "CREATE DATABASE pareto_anywhere OWNER reelyactive;"`
+
+`psql -c "GRANT ALL PRIVILEGES ON DATABASE pareto_anywhere TO reelyactive;"`
+
+### (1.4) Checks the users and tables
+
+`psql`
+
+`\l+`
+
+`\du`
+
+`exit`
+
+### (2.1) Create the table
+
+`psql -U reelyactive -d pareto_anywhere -h localhost`
+
+`CREATE TABLE raddec (
+    transmitterId TEXT,
+    numberOfDecodings INT,
+    receiverId TEXT,
+    rssi INT,
+    timestamp TIMESTAMP
+);`
+
+### (2.2) Upload the test dataset
+
+`\copy raddec(transmitterId, numberOfDecodings, receiverId, rssi, timestamp)
+FROM '/home/xavier/Desktop/Personnel/Travail/Analyste/Projets/Reelyactive/2025-01/paretl-postgres/test/data.csv'
+DELIMITER ','
+CSV HEADER`
+
+### Empty table if needed (truncate keep the structure, drop wipes it)
+
+`sudo -i -u postgres`
+
+`psql`
+
+`\c pareto_anywhere`
+
+`\dt+`
+
+`TRUNCATE TABLE etl_raddec;`
+
+`TRUNCATE TABLE etl_watchdog;`
+
+`DROP TABLE etl_raddec;`
+
+`DROP TABLE etl_watchdog;`
+ 
+### (2.3) Check that the data has been uploaded to the database
+
+`\dt+`
+
+`SELECT COUNT(*) FROM raddec;`
+
+`SELECT * FROM raddec LIMIT 5;`
+
+`exit`
+
+
+### (3.1) Run the ETL
+
+`cd ..`
+
+For a local test (no docker) replace in the config.json
+"db_host": "host.docker.internal",
+by
+"db_host": "localhost",
+Then run the ETL locally:
+
+`python -m src.main -c config/config.json`
+
+
+## Structure of the ETL
+
+The ETL has a standard structure in three steps:
+
+1. Configuration: once all libraries uploaded, the input json configuration file is read and checked.
+2. Extraction: given the information in the configuration file, the data are extracted from the postgresql database.
+3. Transformation: metrics are built and the filters defined the configuration file are applied to the extracted data.
+4. Loading: filtered data are loaded in the output table specified in the configuration file
+5. Logging: process information (CPU, RAM, duration) and general metrics of the filtered data are loaded as a single row in a watchdog table.
 
 
 Contributing

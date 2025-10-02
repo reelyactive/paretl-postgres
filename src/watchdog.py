@@ -45,48 +45,48 @@ class WatchdogLogger:
     def log(self, df: pd.DataFrame, start_time: float):
         
         # Number of rows processed
-        row_count = len(df)
+        rowCount = len(df)
         # Duration of the ETL process
         duration = time.time() - start_time
         # Number of unique transmitters
-        n_transmitters = df['transmitterid'].nunique()
+        nTransmitters = df['transmitterid'].nunique()
         # convert the timestamp to date
         df['date'] = df['timestamp'].dt.date
         # Number of unique transmitters per day
-        n_transmitters_per_day = df.groupby('date')['transmitterid'].nunique().to_dict()
+        nTransmittersPerDay = df.groupby('date')['transmitterid'].nunique().to_dict()
         # Gather in a string
-        n_transmitters_per_day = ", ".join([f"{k}: {v}" for k, v in n_transmitters_per_day.items()])
+        nTransmittersPerDay = ", ".join([f"{k}: {v}" for k, v in nTransmittersPerDay.items()])
         # Median time window
-        median_time_window = df['time_window'].median()
+        medianTimeWindow = df['time_window'].median()
         # Mean time window
-        mean_time_window = df['time_window'].mean() 
+        meanTimeWindow = df['time_window'].mean() 
         # standard deviation of time window
-        std_time_window = df['time_window'].std()
+        stdTimeWindow = df['time_window'].std()
         
         stats = {
             "event_name": self.cfg.get("event_name", "unknown_event"),
             "ts": datetime.now().replace(microsecond=0),   # remove microseconds
-            "rows": row_count,
+            "rows": rowCount,
             "duration_sec": round(duration, 1),            # 2 decimal places
             "cpu_percent": round(psutil.cpu_percent(), 1), # 1 decimal place
             "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024)),
-            "n_transmitters": n_transmitters,
-            "n_transmitters_per_day": n_transmitters_per_day,
-            "median_time_window": round(median_time_window, 1) ,
-            "mean_time_window": round(mean_time_window, 1),
-            "std_time_window": round(std_time_window, 1),
+            "n_transmitters": nTransmitters,
+            "n_transmitters_per_day": nTransmittersPerDay,
+            "median_time_window": round(medianTimeWindow, 1) ,
+            "mean_time_window": round(meanTimeWindow, 1),
+            "std_time_window": round(stdTimeWindow, 1),
         }
 
         try:
             
             # Save locally as CSV
-            timestamp_str = stats["ts"].strftime("%Y-%m-%d_%Hh%M")
-            filename = f"paretl_{stats['event_name']}_{timestamp_str}.csv"
+            timestampStr = stats["ts"].strftime("%Y-%m-%d_%Hh%M")
+            filename = f"paretl_{stats['event_name']}_{timestampStr}.csv"
             filename = filename.replace(" ", "_")
 
             # Save
-            df_stats = pd.DataFrame([stats])
-            df_stats.to_csv(filename, index=False)
+            dfStats = pd.DataFrame([stats])
+            dfStats.to_csv(filename, index=False)
             logging.info(f"[Watchdog] ETL stats saved in {filename}")
 
             with self.conn.cursor() as cur:

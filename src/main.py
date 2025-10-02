@@ -9,8 +9,8 @@ import argparse
 from sqlalchemy import engine, create_engine
 from datetime import datetime
 
-from src.logger_setup import setup_logging
-from src.config_loader import load_config
+from src.logger_setup import setupLogging
+from src.config_loader import loadConfig
 from src.db_connector import DBConnector
 
 from src.data.data_wrangler import DataWrangler
@@ -23,7 +23,7 @@ from src.watchdog import WatchdogLogger
 # -------------------------
 # Main ETL Process
 # -------------------------
-def run_etl(cfg: dict):
+def runETL(cfg: dict):
     start_time = time.time()
 
     with DBConnector(cfg) as conn:
@@ -43,11 +43,11 @@ def run_etl(cfg: dict):
 
         # Watch dog
         watchdog = WatchdogLogger(conn, cfg)
-        watchdog_id = watchdog.log(df, start_time)
+        watchdogId = watchdog.log(df, start_time)
 
         # Loading data
         loader = DataLoader(cfg)
-        loader.load(df, watchdog_id)
+        loader.load(df, watchdogId)
 
         # Final commit
         conn.commit()
@@ -66,10 +66,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    cfg = load_config(args.config)
+    cfg = loadConfig(args.config)
     #cfg = load_config("config/config.json")
-    setup_logging(cfg.get("log_level", "INFO"))
-    run_etl(cfg)
+    setupLogging(cfg.get("log_level", "INFO"))
+    runETL(cfg)
     logging.info("Process completed.")
     logging.info("Yippee-ki-yay.")
 

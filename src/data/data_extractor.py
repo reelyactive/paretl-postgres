@@ -16,33 +16,33 @@ class DataExtractor:
 
         with self.conn.cursor() as cur:
             cur.execute(f"SELECT MIN(timestamp), MAX(timestamp) FROM {self.cfg['source_table']}")
-            min_ts, max_ts = cur.fetchone()
-            logging.info(f"[Extractor] Available time window between {min_ts} and {max_ts}")
+            minTs, maxTs = cur.fetchone()
+            logging.info(f"[Extractor] Available time window between {minTs} and {maxTs}")
 
         # Try to read start and end from config
-        start_ts = self.cfg.get("start_ts")  # expect ISO string or None
-        end_ts = self.cfg.get("end_ts")
+        startTs = self.cfg.get("start_ts")  # expect ISO string or None
+        endTs = self.cfg.get("end_ts")
 
-        if start_ts and end_ts:
+        if startTs and endTs:
             # Parse strings to datetime if needed
-            start_ts = datetime.fromisoformat(start_ts) if isinstance(start_ts, str) else start_ts
-            end_ts = datetime.fromisoformat(end_ts) if isinstance(end_ts, str) else end_ts
+            startTs = datetime.fromisoformat(startTs) if isinstance(startTs, str) else startTs
+            endTs = datetime.fromisoformat(endTs) if isinstance(endTs, str) else endTs
         else:
             # Fallback: use frequency
             freq_minutes = int(self.cfg.get("frequency_minutes", 60))
-            end_ts = datetime.now()
-            start_ts = end_ts - timedelta(minutes=freq_minutes)
+            endTs = datetime.now()
+            startTs = endTs - timedelta(minutes=freq_minutes)
 
         # Construct and execute query        
         receivers = self.cfg['receivers_id']  # e.g. [1, 2, 3]
-        placeholders = ",".join(["%s"] * len(receivers))
+        placeHolders = ",".join(["%s"] * len(receivers))
         query = f"""
             SELECT * FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s
-            AND receiverid IN ({placeholders})
+            AND receiverid IN ({placeHolders})
         """
-        params = [start_ts, end_ts] + receivers
-
+        params = [startTs, endTs] + receivers
+      
         with self.conn.cursor() as cur:
             cur.execute(query, params)
             rows = cur.fetchall()
@@ -50,5 +50,5 @@ class DataExtractor:
 
         df = pd.DataFrame(rows, columns=colnames)
         logging.info(f"[Extractor] Extracted for event {self.cfg['event_name']} {len(df)} rows from {self.cfg['source_table']} "
-                     f"between {start_ts} and {end_ts} for the receivers {receivers}")
+                     f"between {startTs} and {endTs} for the receivers {receivers}")
         return df

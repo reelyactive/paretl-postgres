@@ -16,6 +16,7 @@ class DataWrangler:
         self.dry_run = dry_run
 
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
+        
         logging.info(f"[Wrangler] Data shape:\n" + tabulate(
                 df.head(3),
                 headers="keys",
@@ -26,7 +27,7 @@ class DataWrangler:
         # Convert timestamp to datetime
         logging.info(f"[Wrangler] Converting timestamp to datetime...")
         df["timestamp"] = pd.to_datetime(df["timestamp"], format="%b %d, %Y @ %H:%M:%S.%f")
-
+        
         # Ensure RSSI is integer
         logging.info(f"[Wrangler] Ensuring RSSI is integer...")
         df["rssi"] = df["rssi"].astype(int)
@@ -38,7 +39,7 @@ class DataWrangler:
           
         # Number of measurements per transmitter
         logging.info(f"[Wrangler] Calculating number of measurements per transmitter...") 
-        df_metrics = (
+        dfMetrics = (
             df.groupby("transmitterid")
             .agg(
                 nb_counts=("numberofdecodings", "sum"),
@@ -50,25 +51,25 @@ class DataWrangler:
 
         # Calculate max-min time for each transmitter
         logging.info(f"[Wrangler] Calculating time window and max RSSI per transmitter...") 
-        df_metrics["time_window"] = (df_metrics["max_time"] - df_metrics["min_time"]).dt.total_seconds()
-        df = df.merge(df_metrics[["transmitterid", "time_window", "max_rssi", "nb_counts"]], on="transmitterid", how="left")
-        del df_metrics
-
+        dfMetrics["time_window"] = (dfMetrics["max_time"] - dfMetrics["min_time"]).dt.total_seconds()
+        df = df.merge(dfMetrics[["transmitterid", "time_window", "max_rssi", "nb_counts"]], on="transmitterid", how="left")
+        del dfMetrics
         # Second character in the mac address
         logging.info(f"[Wrangler] Extracting second character of transmitterId...") 
         unique_ids = df["transmitterid"].unique().tolist()
-        df_metrics = pd.DataFrame(
+        
+        dfMetrics = pd.DataFrame(
             [list(uid) for uid in unique_ids], 
             columns=[f"char_{i}" for i in range(len(unique_ids[0]))]
         )
-        df_metrics = df_metrics[["char_1"]]
-        df_metrics = df_metrics.rename(columns={"char_1": "digit_2"})
-        private_set = {"a", "e", "2", "6"}
-        df_metrics["isPrivate"] = df_metrics["digit_2"].isin(private_set)
-        df_metrics["transmitterid"] = unique_ids
+        dfMetrics = dfMetrics[["char_1"]]
+        dfMetrics = dfMetrics.rename(columns={"char_1": "digit_2"})
+        privateSet = {"a", "e", "2", "6"}
+        dfMetrics["isPrivate"] = dfMetrics["digit_2"].isin(privateSet)
+        dfMetrics["transmitterid"] = unique_ids
         del unique_ids
-        df = df.merge(df_metrics, on="transmitterid", how="left")
-        del df_metrics  
+        df = df.merge(dfMetrics, on="transmitterid", how="left")
+        del dfMetrics  
             
         logging.info(f"[Wrangler] Data shape:\n" + tabulate(
                 df.head(3),
@@ -76,5 +77,5 @@ class DataWrangler:
                 tablefmt="psql",
                 showindex=False
             ))
-    
+        
         return df
