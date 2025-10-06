@@ -24,7 +24,7 @@ from src.watchdog import WatchdogLogger
 # Main ETL Process
 # -------------------------
 def runETL(cfg: dict):
-    start_time = time.time()
+    startTime = time.time()
 
     with DBConnector(cfg) as conn:
         cur = conn.cursor()
@@ -43,7 +43,7 @@ def runETL(cfg: dict):
 
         # Watch dog
         watchdog = WatchdogLogger(conn, cfg)
-        watchdogId = watchdog.log(df, start_time)
+        watchdogId = watchdog.log(df, startTime)
 
         # Loading data
         loader = DataLoader(cfg)

@@ -34,7 +34,7 @@ if you don't have docker, install it:
 
 Pull the docker image:
 
-`sudo docker pull prudentxavier/paretl:latest`
+`sudo docker pull reelyactive/paretl-postgres:latest`
 
 Check you have the image:
 
@@ -49,7 +49,7 @@ Download the configuration file
 `sudo docker run \
   --add-host=host.docker.internal:host-gateway \
   -v $(pwd)/config:/app/config \
-  prudentxavier/paretl:latest python -m src.main -c config/config.json`
+  reelyactive/paretl-postgres:latest python -m src.main -c config/config.json`
 
 If it fails, you may need to make the postgresql listen to the docker by adding the following lines:
 
@@ -196,11 +196,11 @@ Build the image and push it to the Docker hub
 
 `sudo docker images`
 
-`sudo docker tag etl_app prudentxavier/paretl:latest`
+`sudo docker tag etl_app reelyactive/paretl-postgres:latest`
 
-`sudo docker login -u prudentxavier`
+`sudo docker login -u <YOUR DOCKER USER NAME>`
 
-`sudo docker push prudentxavier/paretl:latest`
+`sudo docker push reelyactive/paretl-postgres:latest`
 
 Clean up your local docker from all images
 
@@ -272,7 +272,7 @@ Testing implies:
 ### (2.2) Upload the test dataset
 
 `\copy raddec(transmitterId, numberOfDecodings, receiverId, rssi, timestamp)
-FROM '/home/xavier/Desktop/Personnel/Travail/Analyste/Projets/Reelyactive/2025-01/paretl-postgres/test/data.csv'
+FROM '/home/full/path/to/data.csv'
 DELIMITER ','
 CSV HEADER`
 
