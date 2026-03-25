@@ -2,7 +2,7 @@
 "event_name": "Music festival 2025",
   "start_ts": "2025-06-13 09:00:00",
   "end_ts": "2025-06-13 10:00:00",
-"receivers_id": [
+  "receivers_id": [
     "02a346df7",
     "02a3b59dc",
     "02a3e3a16",
@@ -14,7 +14,7 @@
     "02a3d6d1e"
   ],
   "db_type": "postgresql",
-"db_host": "host.docker.internal",
+  "db_host": "host.docker.internal",
   "db_port": 5432,
   "db_user": "reelyactive",
   "db_pass": "paretoanywhere",
@@ -25,9 +25,9 @@
   "watchdog_table": "etl_watchdog",
 
   "log_level": "INFO",
-"dry_run": false,
+  "dry_run": false,
 
-"filtering": [
+  "filtering": [
     { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
     { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
 ]

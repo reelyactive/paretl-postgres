@@ -39,7 +39,7 @@ class DataExtractor:
         query = f"""
             SELECT * FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s
-            AND receiverid IN ({placeHolders})
+            AND raddec->>receiverid IN ({placeHolders})
         """
         params = [startTs, endTs] + receivers
       
