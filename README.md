@@ -160,6 +160,69 @@ The configuration file requires the following fields:
   * **op** : operator (==, !=, >=, <=, <, >)
   * **val** : filter value (string, number, or boolean)
 
+Example of a configuration file with given start and end times:
+
+```json
+{
+"event_name": "Music festival 2025",
+  "start_ts": "2025-06-13 09:00:00",
+  "end_ts": "2025-06-13 10:00:00",
+  "receivers_id": [
+    "02a346df7123",
+    "02a3b59dc234",
+    "02a3e3a16456"
+  ],
+  "db_type": "postgresql",
+  "db_host": "host.docker.internal",
+  "db_port": 5432,
+  "db_user": "reelyactive",
+  "db_pass": "mypassword",
+  "db_name": "pareto_anywhere",
+
+  "source_table": "raddec",
+  "target_table": "etl_raddec",
+  "watchdog_table": "etl_watchdog",
+
+  "log_level": "INFO",
+  "dry_run": false,
+
+  "filtering": [
+    { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+]
+}
+
+Example of a configuration file with a time window of 60 minutes in the past from now:
+
+```json
+{
+"event_name": "Music festival 2025",
+  "frequency_minutes": 60,
+"receivers_id": [
+    "02a346df7123",
+    "02a3b59dc234",
+    "02a3e3a16456"
+  ],
+  "db_type": "postgresql",
+  "db_host": "localhost",
+  "db_port": 5432,
+  "db_user": "reelyactive",
+  "db_pass": "mypassword",
+  "db_name": "pareto_anywhere",
+
+  "source_table": "raddec",
+  "target_table": "etl_raddec",
+  "watchdog_table": "etl_watchdog",
+
+  "log_level": "INFO",
+  "dry_run": true,
+
+  "filtering": [
+   { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+]
+}
+
 
 ## Creating the json configuration file
 
