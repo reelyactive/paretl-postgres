@@ -160,7 +160,7 @@ The configuration file requires the following fields:
   * **op** : operator (==, !=, >=, <=, <, >)
   * **val** : filter value (string, number, or boolean)
 
-Example of a configuration file with given start and end times:
+Example of a configuration file running on docker with given start and end times:
 
 ```json
 {
@@ -193,7 +193,7 @@ Example of a configuration file with given start and end times:
 }
 ```
 
-Example of a configuration file with a time window of 60 minutes in the past from now:
+Example of a configuration file running on localhost with a time window of 60 minutes in the past from now:
 
 ```json
 {
