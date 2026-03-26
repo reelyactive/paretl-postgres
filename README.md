@@ -191,6 +191,7 @@ Example of a configuration file with given start and end times:
     { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
 ]
 }
+```
 
 Example of a configuration file with a time window of 60 minutes in the past from now:
 
@@ -222,7 +223,7 @@ Example of a configuration file with a time window of 60 minutes in the past fro
     { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
 ]
 }
-
+```
 
 ## Creating the json configuration file
 
