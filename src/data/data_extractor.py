@@ -51,8 +51,8 @@ class DataExtractor:
         df = pd.DataFrame(rows, columns=colnames)
         
         if len(df) == 0:
-       		print("Extraction from database results in an empty table")
-    		sys.exit(1)
+       	    print("Extraction from database results in an empty table")
+    	    sys.exit(1)
         
         logging.info(f"[Extractor] Extracted for event {self.cfg['event_name']} {len(df)} rows from {self.cfg['source_table']} "
                      f"between {startTs} and {endTs} for the receivers {receivers}")
