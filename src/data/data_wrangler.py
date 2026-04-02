@@ -30,6 +30,7 @@ class DataWrangler:
         
         # Ensure RSSI is integer
         logging.info(f"[Wrangler] Ensuring RSSI is integer...")
+
         df["rssi"] = df["rssi"].astype(int)
 
         # Ensure IDs are strings
