@@ -199,7 +199,7 @@ Example of a configuration file running on localhost with a time window of 60 mi
 {
 "event_name": "Music festival 2025",
   "frequency_minutes": 60,
-"receivers_id": [
+  "receivers_id": [
     "02a346df7123",
     "02a3b59dc234",
     "02a3e3a16456"
@@ -220,7 +220,7 @@ Example of a configuration file running on localhost with a time window of 60 mi
 
   "filtering": [
    { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
-    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+   { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
 ]
 }
 ```
@@ -323,22 +323,44 @@ Testing implies:
 
 ### (2.1) Create the table
 
+Remember that the data are stored in the database as json raddecs:
+
 `psql -U reelyactive -d pareto_anywhere -h localhost`
 
 `CREATE TABLE raddec (
-    transmitterId TEXT,
-    numberOfDecodings INT,
-    receiverId TEXT,
-    rssi INT,
-    timestamp TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    data JSONB NOT NULL,
+    -- Virtual columns that automatically pull data from the JSON
+    timestamp TIMESTAMP GENERATED ALWAYS AS (
+        (data->>'timestamp')::timestamp
+    ) STORED,
+    transmitterid TEXT GENERATED ALWAYS AS (
+        data->>'transmitterId'
+    ) STORED,
+    receiverid TEXT GENERATED ALWAYS AS (
+        data->>'receiverId'
+    ) STORED,
+    rssi INT GENERATED ALWAYS AS (
+        (data->>'rssi')::int
+    ) STORED
 );`
+
 
 ### (2.2) Upload the test dataset
 
-`\copy raddec(transmitterId, numberOfDecodings, receiverId, rssi, timestamp)
-FROM '/home/full/path/to/data.csv'
-DELIMITER ','
-CSV HEADER`
+Example of the content of a raddec data input:
+
+`
+data
+"{""transmitterId"": ""001122334455"", ""receiverId"": ""reelyactive-01"", ""rssi"": -72, ""timestamp"": ""2026-04-02 10:00:00""}"
+"{""transmitterId"": ""aabbccddeeff"", ""receiverId"": ""reelyactive-01"", ""rssi"": -65, ""timestamp"": ""2026-04-02 10:05:30""}"
+"{""transmitterId"": ""1234567890ab"", ""receiverId"": ""reelyactive-02"", ""rssi"": -88, ""timestamp"": ""2026-04-02 10:10:15""}"
+`
+`
+\copy raddec(data) 
+FROM '/home/full/path/to/data.csv' 
+WITH (FORMAT CSV, HEADER);
+`
 
 ### Empty table if needed (truncate keep the structure, drop wipes it)
 
