@@ -44,7 +44,8 @@ class DataExtractor:
             timestamp,
             raddec->>'transmitterId' AS transmitterid,
             raddec->>'receiverId' AS receiverid,
-            raddec->>'rssi' AS rssi
+            raddec->>'rssi' AS rssi,
+            raddec->>'numberofdecodings' AS numberofdecodings
             FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s
             AND raddec->>'receiverId' IN ({placeHolders})
@@ -64,7 +65,7 @@ class DataExtractor:
             sys.exit(1)
         
         # Check that the columns used later are all available
-        required_cols = {"timestamp", "rssi", "transmitterid", "receiverid"}
+        required_cols = {"timestamp", "rssi", "transmitterid", "receiverid", "numberofdecodings"}
         actual_cols = set(df.columns)
         missing = required_cols - actual_cols
         if missing:
