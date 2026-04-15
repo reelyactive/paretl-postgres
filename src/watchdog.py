@@ -72,9 +72,9 @@ class WatchdogLogger:
             "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024)),
             "n_transmitters": nTransmitters,
             "n_transmitters_per_day": nTransmittersPerDay,
-            "median_time_window": round(medianTimeWindow, 1) ,
-            "mean_time_window": round(meanTimeWindow, 1),
-            "std_time_window": round(stdTimeWindow, 1),
+            "median_time_window": float(round(medianTimeWindow, 1)),
+            "mean_time_window": float(round(meanTimeWindow, 1)),
+            "std_time_window": float(round(stdTimeWindow, 1)),
         }
 
         try:

@@ -45,7 +45,7 @@ class DataExtractor:
             raddec->>'transmitterId' AS transmitterid,
             raddec->>'receiverId' AS receiverid,
             raddec->>'rssi' AS rssi,
-            raddec->>'numberofdecodings' AS numberofdecodings
+            raddec->>'numberOfDecodings' AS numberofdecodings
             FROM {self.cfg['source_table']}
             WHERE timestamp BETWEEN %s AND %s
             AND raddec->>'receiverId' IN ({placeHolders})
@@ -59,10 +59,14 @@ class DataExtractor:
             colnames = [desc[0] for desc in cur.description]
 
         df = pd.DataFrame(rows, columns=colnames)
+        print(df)
         
         if len(df) == 0:
             print("Extraction from database results in an empty table")
             sys.exit(1)
+        else:
+            logging.info(f"[Extractor] {len(df)} rows extracted from database")
+
         
         # Check that the columns used later are all available
         required_cols = {"timestamp", "rssi", "transmitterid", "receiverid", "numberofdecodings"}
@@ -72,7 +76,8 @@ class DataExtractor:
             print(f"Error: Missing required columns in DataFrame: {', '.join(missing)}")
             print("Expected columns derived from raddec: timestamp, rssi, transmitterid, receiverid.")
             sys.exit(1) # Exit the script with an error code
-        
+        else:
+            logging.info(f"[Extractor] All required columns found in data")
         
         logging.info(f"[Extractor] Extracted for event {self.cfg['event_name']} {len(df)} rows from {self.cfg['source_table']} "
                      f"between {startTs} and {endTs} for the receivers {receivers}")

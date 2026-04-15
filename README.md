@@ -10,6 +10,8 @@ A watchdog process enables the overview of the full operation.
 
 You can use the ETL process either with the scripts directly or using a docker image.
 
+`python -m src.main -c config/config.json`
+
 ## Conditions
 
 You need a local postgresql database with a `raddec` table whose columns are:
@@ -360,6 +362,48 @@ data
 \copy raddec(data) 
 FROM '/home/full/path/to/data.csv' 
 WITH (FORMAT CSV, HEADER);
+`
+
+### (2.3) Using a data simulator
+
+Simulated data can be uploaded to the database at a regular pace using barnacles-postgres:
+
+`git clone git@github.com:reelyactive/barnacles-postgres.git`
+
+`cd barnacles-postgres`
+
+`npm install`
+
+`npm run simulator`
+
+Use the following configuration json for paretl:
+
+`
+{
+"event_name": "Music festival 2025",
+  "frequency_minutes": 60,
+  "receivers_id": [
+    "001bc50940810000"
+  ],
+  "db_type": "postgresql",
+  "db_host": "localhost",
+  "db_port": 5432,
+  "db_user": "reelyactive",
+  "db_pass": "paretoanywhere",
+  "db_name": "pareto_anywhere",
+
+  "source_table": "raddec",
+  "target_table": "etl_raddec",
+  "watchdog_table": "etl_watchdog",
+
+  "log_level": "INFO",
+  "dry_run": false,
+
+  "filtering": [
+    { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+]
+}
 `
 
 ### Empty table if needed (truncate keep the structure, drop wipes it)
