@@ -30,14 +30,17 @@ class DataWrangler:
         
         # Ensure RSSI is integer
         logging.info(f"[Wrangler] Ensuring RSSI is integer...")
-
         df["rssi"] = df["rssi"].astype(int)
+        
+        # Ensure RSSI is integer
+        logging.info(f"[Wrangler] Ensuring numberofdecodings is integer...")
+        df["numberofdecodings"] = df["numberofdecodings"].astype(int)
 
         # Ensure IDs are strings
         logging.info(f"[Wrangler] Ensuring IDs are strings...") 
         df["transmitterid"] = df["transmitterid"].astype(str)
         df["receiverid"] = df["receiverid"].astype(str)
-          
+         
         # Number of measurements per transmitter
         logging.info(f"[Wrangler] Calculating number of measurements per transmitter...") 
         dfMetrics = (
