@@ -55,9 +55,11 @@ class DataWrangler:
 
         # Calculate max-min time for each transmitter
         logging.info(f"[Wrangler] Calculating time window and max RSSI per transmitter...") 
-        dfMetrics["time_window"] = (dfMetrics["max_time"] - dfMetrics["min_time"]).dt.total_seconds()
-        df = df.merge(dfMetrics[["transmitterid", "time_window", "max_rssi", "nb_counts"]], on="transmitterid", how="left")
+        dfMetrics["duration_seconds"] = (dfMetrics["max_time"] - dfMetrics["min_time"]).dt.total_seconds()
+        df = df.merge(dfMetrics[["transmitterid", "duration_seconds", "max_rssi", "nb_counts"]], on="transmitterid", how="left")
         del dfMetrics
+        
+
         # Second character in the mac address
         logging.info(f"[Wrangler] Extracting second character of transmitterId...") 
         unique_ids = df["transmitterid"].unique().tolist()
@@ -69,7 +71,9 @@ class DataWrangler:
         dfMetrics = dfMetrics[["char_1"]]
         dfMetrics = dfMetrics.rename(columns={"char_1": "digit_2"})
         privateSet = {"a", "e", "2", "6"}
-        dfMetrics["isPrivate"] = dfMetrics["digit_2"].isin(privateSet)
+        dfMetrics["is_private"] = dfMetrics["digit_2"].isin(privateSet)
+        # remove digit_2 column as we have the private flag now
+        dfMetrics = dfMetrics.drop(columns=["digit_2"])
         dfMetrics["transmitterid"] = unique_ids
         del unique_ids
         df = df.merge(dfMetrics, on="transmitterid", how="left")

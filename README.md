@@ -10,7 +10,9 @@ A watchdog process enables the overview of the full operation.
 
 You can use the ETL process either with the scripts directly or using a docker image.
 
-`python -m src.main -c config/config.json`
+```bash
+python -m src.main -c config/config.json
+```
 
 ## Conditions
 
@@ -28,38 +30,46 @@ The ETL is avalaible as a docker image stored in Docker Hub.
 
 Make sure you have docker installed:
 
-`docker --version`
+```bash
+docker --version
+```
 
 if you don't have docker, install it:
 
-`sudo snap install docker`
+```bash
+sudo snap install docker
+```
 
 Pull the docker image:
 
-`sudo docker pull reelyactive/paretl-postgres:latest`
+```bash
+sudo docker pull reelyactive/paretl-postgres:latest
+```
 
 Check you have the image:
 
-`sudo docker images`
+```bash
+sudo docker images
+```
 
-Download the configuration file
+Create the configuration file (See the 'Configuring the ETL' section below)
 
-`mkdir config`
-
-`wget https://github.com/reelyactive/paretl-postgres/blob/ba47af6cf082b0998bd76e4b162a28f9adafa697/config/config.json` 
-
-`sudo docker run \
+```bash
+sudo docker run \
   --add-host=host.docker.internal:host-gateway \
   -v $(pwd)/config:/app/config \
-  reelyactive/paretl-postgres:latest python -m src.main -c config/config.json`
+  reelyactive/paretl-postgres:latest python -m src.main -c config/config.json
+```
 
 If it fails, you may need to make the postgresql listen to the docker by adding the following lines:
 
-`sudo nano /etc/postgresql/16/main/postgresql.conf 
+```bash
+sudo nano /etc/postgresql/16/main/postgresql.conf 
 listen_addresses = '*'
 sudo nano /etc/postgresql/16/main/pg_hba.conf 
 host all all 172.17.0.0/16 md5
-sudo systemctl restart postgresql`
+sudo systemctl restart postgresql
+```
 
 
 ## Using the plain code
@@ -79,15 +89,21 @@ Python libraries:
 
 If missing you can install them using:
 
-`pip install <LIBRARY NAME>`
+```bash
+pip install <LIBRARY NAME>
+```
 
 Retrieve the code:
 
-`git clone https://github.com/reelyactive/paretl-postgres.git`
+```bash
+git clone https://github.com/reelyactive/paretl-postgres.git
+```
 
 Go to the ETL repository:
 
-`cd paretl-postgres`
+```bash
+cd paretl-postgres
+```
 
 In the configuration file `config/config.json`, make sure that the DB host link be set to:
 
@@ -95,7 +111,9 @@ In the configuration file `config/config.json`, make sure that the DB host link 
 
 Run the ETL:
 
-`python -m src.main -c config/config.json`
+```bash
+python -m src.main -c config/config.json
+```
 
 ## Result
 
@@ -105,11 +123,10 @@ Your database contains now two additional tables:
 
 The `etl_raddec` table contains the rows of the `raddec` table that passed the filters defined in the configuration file. Its columns are the same as the raddec's, plus various metrics:
 
-* **time_window** (numeric variable): duration in seconds between the first and the last observation of a transmitter over all the receivers  
+* **duration_seconds** (numeric variable): duration in seconds between the first and the last observation of a transmitter over all the receivers  
 * **max_rssi** (numeric variable): maximum observed detection power rssi of a transmitter over all the receivers  
 * **nb_counts** (integer variable): total number of observations of a transmitter over all the receivers  
-* **digit_2** (alphanumeric variable): second character of the MAC address of the transmitter  
-* **isPrivate** (boolean): does the MAC address of the transmitter correspond to a private device  
+* **is_private** (boolean): does the MAC address of the transmitter correspond to a private device  
 * **date** (date variable): simple conversion of timestamp to date  
 * **watchdog_id** (table key): processing index, to be crossed with the primary key of the `etl_watchdog` table  
 
@@ -125,9 +142,9 @@ The `etl_watchdog` table contains one row per ETL processing with the following 
 * **memory_mb** (numeric variable): RAM in Mb used for the ETL processing  
 * **n_transmitters** (integer variable): number of transmitters observed in the filtered raddec table  
 * **n_transmitters_per_day** (alphanumeric variable YYYY-MM-DD: N): number of transmitters per day observed in the filtered raddec table  
-* **median_time_window** (numeric variable): [median](https://en.wikipedia.org/wiki/Median) time window of the transmitters in the filtered raddec table  
-* **mean_time_window** (numeric variable): [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) time window of the transmitters in the filtered raddec table  
-* **std_time_window** (numeric variable): [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) (spread) time window of the transmitters in the filtered raddec table  
+* **median_duration_seconds** (numeric variable): [median](https://en.wikipedia.org/wiki/Median) time window of the transmitters in the filtered raddec table  
+* **mean_duration_seconds** (numeric variable): [mean](https://en.wikipedia.org/wiki/Arithmetic_mean) time window of the transmitters in the filtered raddec table  
+* **std_duration_seconds** (numeric variable): [standard deviation](https://en.wikipedia.org/wiki/Standard_deviation) (spread) time window of the transmitters in the filtered raddec table  
 
 
 
@@ -158,7 +175,7 @@ The configuration file requires the following fields:
 * **dry_run** : boolean flag (true/false) to enable dry-run mode (no DB writes)
 * **filtering** : list of filtering rules, each object containing:
   * **name** : user defined filter name (for instance "Trying a filter on time window")
-  * **col** : column name to filter on, must be a column of the `etl_raddec` table (see above) (for instance "time_window")
+  * **col** : column name to filter on, must be a column of the `etl_raddec` table (see above) (for instance "duration_seconds")
   * **op** : operator (==, !=, >=, <=, <, >)
   * **val** : filter value (string, number, or boolean)
 
@@ -189,8 +206,8 @@ Example of a configuration file running on docker with given start and end times
   "dry_run": false,
 
   "filtering": [
-    { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
-    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+    { "name": "Time window", "col": "duration_seconds", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "is_private", "op": "==", "val": true }
 ]
 }
 ```
@@ -221,8 +238,8 @@ Example of a configuration file running on localhost with a time window of 60 mi
   "dry_run": true,
 
   "filtering": [
-   { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
-   { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+   { "name": "Time window", "col": "duration_seconds", "op": ">=", "val": 120 },
+   { "name": "Private adress", "col": "is_private", "op": "==", "val": true }
 ]
 }
 ```
@@ -249,7 +266,6 @@ You will need a csv file with all the receivers, from which you can then pick th
 | 02a38b484e43    |
 
 
-
 You can then add an arbitrary number of user defined filters.
 
 # For the developers
@@ -258,27 +274,23 @@ You can then add an arbitrary number of user defined filters.
 
 Build the image and push it to the Docker hub
 
-`sudo docker build -t etl_app .`
-
-`sudo docker images`
-
-`sudo docker tag etl_app reelyactive/paretl-postgres:latest`
-
-`sudo docker login -u <YOUR DOCKER USER NAME>`
-
-`sudo docker push reelyactive/paretl-postgres:latest`
+```bash
+sudo docker build -t etl_app .
+sudo docker images
+sudo docker tag etl_app reelyactive/paretl-postgres:latest
+sudo docker login -u <YOUR DOCKER USER NAME>
+sudo docker push reelyactive/paretl-postgres:latest
+```
 
 Clean up your local docker from all images
 
-`sudo docker container prune -f`
-
-`sudo docker rmi $(sudo docker images | awk '/<none>/ {print $3}')`
-
-`sudo docker stop $(sudo docker ps -aq)`
-
-`sudo docker rm $(sudo docker ps -aq)`
-
-`sudo docker rmi -f $(sudo docker images -aq)`
+```bash
+sudo docker container prune -f
+sudo docker rmi $(sudo docker images | awk '/<none>/ {print $3}')
+sudo docker stop $(sudo docker ps -aq)
+sudo docker rm $(sudo docker ps -aq)
+sudo docker rmi -f $(sudo docker images -aq)
+```
 
 ## Testing the ETL
 
@@ -289,47 +301,49 @@ Testing implies:
 
 ### (1.1) Install and start postgresql
 
-`sudo apt update`
-
-`sudo apt upgrade -y`
-
-`sudo apt install postgresql postgresql-contrib -y`
-
-`sudo systemctl enable postgresql`
-
-`sudo systemctl start postgresql`
-
-`sudo systemctl status postgresql`
+```bash
+sudo apt update
+sudo apt upgrade -y
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+sudo systemctl status postgresql
+```
 
 ### (1.2) Create the user
 
-`sudo -i -u postgres`
 
-`psql -c "CREATE USER reelyactive WITH PASSWORD 'paretoanywhere';"`
+```bash
+sudo -i -u postgres
+psql -c "CREATE USER reelyactive WITH PASSWORD 'paretoanywhere';"
+```
 
 ### (1.3) Create database owned by the user and grant privileges
 
-`psql -c "CREATE DATABASE pareto_anywhere OWNER reelyactive;"`
-
-`psql -c "GRANT ALL PRIVILEGES ON DATABASE pareto_anywhere TO reelyactive;"`
+```bash
+psql -c "CREATE DATABASE pareto_anywhere OWNER reelyactive;"
+psql -c "GRANT ALL PRIVILEGES ON DATABASE pareto_anywhere TO reelyactive;"
+```
 
 ### (1.4) Checks the users and tables
 
-`psql`
-
-`\l+`
-
-`\du`
-
-`exit`
+```sql
+psql
+\l+
+\du
+exit
+```
 
 ### (2.1) Create the table
 
 Remember that the data are stored in the database as json raddecs:
 
-`psql -U reelyactive -d pareto_anywhere -h localhost`
+```bash
+psql -U reelyactive -d pareto_anywhere -h localhost
+```
 
-`CREATE TABLE raddec (
+```sql
+CREATE TABLE raddec (
     id SERIAL PRIMARY KEY,
     data JSONB NOT NULL,
     -- Virtual columns that automatically pull data from the JSON
@@ -345,40 +359,41 @@ Remember that the data are stored in the database as json raddecs:
     rssi INT GENERATED ALWAYS AS (
         (data->>'rssi')::int
     ) STORED
-);`
+);
+```
 
 
 ### (2.2) Upload the test dataset
 
-Example of the content of a raddec data input:
+```bash
+python3 generate_raddec.py
+chmod 644 raddec_for_testing.csv
+mv raddec_for_testing.csv /tmp/
+```
 
-`
-data
-"{""transmitterId"": ""001122334455"", ""receiverId"": ""reelyactive-01"", ""rssi"": -72, ""timestamp"": ""2026-04-02 10:00:00""}"
-"{""transmitterId"": ""aabbccddeeff"", ""receiverId"": ""reelyactive-01"", ""rssi"": -65, ""timestamp"": ""2026-04-02 10:05:30""}"
-"{""transmitterId"": ""1234567890ab"", ""receiverId"": ""reelyactive-02"", ""rssi"": -88, ""timestamp"": ""2026-04-02 10:10:15""}"
-`
-`
-\copy raddec(data) 
-FROM '/home/full/path/to/data.csv' 
+```sql
+psql -d pareto_anywhere
+\c pareto_anywhere
+\copy raddec(transmittersignature, timestamp, raddec) 
+FROM '/tmp/raddec_for_testing.csv' 
 WITH (FORMAT CSV, HEADER);
-`
+```
+
 
 ### (2.3) Using a data simulator
 
 Simulated data can be uploaded to the database at a regular pace using barnacles-postgres:
 
-`git clone git@github.com:reelyactive/barnacles-postgres.git`
-
-`cd barnacles-postgres`
-
-`npm install`
-
-`npm run simulator`
+```bash
+git clone git@github.com:reelyactive/barnacles-postgres.git
+cd barnacles-postgres
+npm install
+npm run simulator
+```
 
 Use the following configuration json for paretl:
 
-`
+```json
 {
 "event_name": "Music festival 2025",
   "frequency_minutes": 60,
@@ -400,44 +415,36 @@ Use the following configuration json for paretl:
   "dry_run": false,
 
   "filtering": [
-    { "name": "Time window", "col": "time_window", "op": ">=", "val": 120 },
-    { "name": "Private adress", "col": "isPrivate", "op": "==", "val": true }
+    { "name": "Time window", "col": "duration_seconds", "op": ">=", "val": 120 },
+    { "name": "Private adress", "col": "is_private", "op": "==", "val": true }
 ]
 }
-`
+```
 
 ### Empty table if needed (truncate keep the structure, drop wipes it)
 
-`sudo -i -u postgres`
-
-`psql`
-
-`\c pareto_anywhere`
-
-`\dt+`
-
-`TRUNCATE TABLE etl_raddec;`
-
-`TRUNCATE TABLE etl_watchdog;`
-
-`DROP TABLE etl_raddec;`
-
-`DROP TABLE etl_watchdog;`
+```sql
+sudo -i -u postgres
+psql
+\c pareto_anywhere
+\dt+
+TRUNCATE TABLE etl_raddec;
+TRUNCATE TABLE etl_watchdog;
+DROP TABLE etl_raddec;
+DROP TABLE etl_watchdog;
+```
  
 ### (2.3) Check that the data has been uploaded to the database
 
-`\dt+`
-
-`SELECT COUNT(*) FROM raddec;`
-
-`SELECT * FROM raddec LIMIT 5;`
-
-`exit`
+```sql
+\dt+
+SELECT COUNT(*) FROM raddec;
+SELECT * FROM raddec LIMIT 5;
+exit
+```
 
 
 ### (3.1) Run the ETL
-
-`cd ..`
 
 For a local test (no docker) replace in the config.json
 "db_host": "host.docker.internal",
@@ -445,7 +452,9 @@ by
 "db_host": "localhost",
 Then run the ETL locally:
 
-`python -m src.main -c config/config.json`
+```bash
+python -m src.main -c config/config.json
+```
 
 
 ## Structure of the ETL

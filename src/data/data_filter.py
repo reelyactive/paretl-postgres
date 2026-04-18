@@ -33,6 +33,10 @@ class DataFilter:
                     raise ValueError(f"Unsupported filter operator: {op}")
 
             after = len(df)
+            if after == 0:
+                logging.info(f"[Filter] Filter results in empty dataframe. Aborting ETL.")
+                exit(1)
+            
             logging.info(f"[Filter] Filter on {col} {op} {val}: {before} → {after} ({(after - before) / before:.1%})")
 
         logging.info(f"[Filter] Output shape: {df.shape}")

@@ -83,7 +83,7 @@
   <script>
     const columns = [
       "transmitterid", "numberofdecodings", "receiverid", "rssi", "timestamp",
-      "time_window", "max_rssi", "nb_counts", "digit_2", "isPrivate"
+      "duration_seconds", "max_rssi", "nb_counts", "digit_2", "is_private"
     ];
 
     // dictionnaire EN/FR
@@ -161,7 +161,7 @@
     function updateValueInput(row, colValue) {
       const langData = dict[currentLang];
       const valueCell = row.cells[3];
-      if (colValue === "isPrivate") {
+      if (colValue === "is_private") {
         valueCell.innerHTML = `
           <select>
             <option value="true">true</option>

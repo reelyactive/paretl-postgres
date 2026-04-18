@@ -35,9 +35,9 @@ class WatchdogLogger:
                         memory_mb NUMERIC,
                         n_transmitters INTEGER,
                         n_transmitters_per_day TEXT,
-                        median_time_window NUMERIC,
-                        mean_time_window NUMERIC,
-                        std_time_window NUMERIC
+                        median_duration_seconds NUMERIC,
+                        mean_duration_seconds NUMERIC,
+                        std_duration_seconds NUMERIC
                     )
                 """)
                 self.conn.commit()
@@ -57,11 +57,11 @@ class WatchdogLogger:
         # Gather in a string
         nTransmittersPerDay = ", ".join([f"{k}: {v}" for k, v in nTransmittersPerDay.items()])
         # Median time window
-        medianTimeWindow = df['time_window'].median()
+        medianTimeWindow = df['duration_seconds'].median()
         # Mean time window
-        meanTimeWindow = df['time_window'].mean() 
+        meanTimeWindow = df['duration_seconds'].mean() 
         # standard deviation of time window
-        stdTimeWindow = df['time_window'].std()
+        stdTimeWindow = df['duration_seconds'].std()
         
         stats = {
             "event_name": self.cfg.get("event_name", "unknown_event"),
@@ -72,9 +72,9 @@ class WatchdogLogger:
             "memory_mb": round(psutil.virtual_memory().used / (1024 * 1024)),
             "n_transmitters": nTransmitters,
             "n_transmitters_per_day": nTransmittersPerDay,
-            "median_time_window": float(round(medianTimeWindow, 1)),
-            "mean_time_window": float(round(meanTimeWindow, 1)),
-            "std_time_window": float(round(stdTimeWindow, 1)),
+            "median_duration_seconds": float(round(medianTimeWindow, 1)),
+            "mean_duration_seconds": float(round(meanTimeWindow, 1)),
+            "std_duration_seconds": float(round(stdTimeWindow, 1)),
         }
 
         try:
@@ -92,7 +92,7 @@ class WatchdogLogger:
             with self.conn.cursor() as cur:
                 cur.execute(
                     f"INSERT INTO {self.cfg['watchdog_table']} "
-                    f"(event_name, ts, rows, duration_sec, cpu_percent, memory_mb, n_transmitters, n_transmitters_per_day, median_time_window, mean_time_window, std_time_window) "
+                    f"(event_name, ts, rows, duration_sec, cpu_percent, memory_mb, n_transmitters, n_transmitters_per_day, median_duration_seconds, mean_duration_seconds, std_duration_seconds) "
                     f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                     ( stats["event_name"],
                     stats["ts"], 
@@ -102,9 +102,9 @@ class WatchdogLogger:
                     stats["memory_mb"],
                     stats["n_transmitters"],
                     stats["n_transmitters_per_day"],
-                    stats["median_time_window"],
-                    stats["mean_time_window"],
-                    stats["std_time_window"])
+                    stats["median_duration_seconds"],
+                    stats["mean_duration_seconds"],
+                    stats["std_duration_seconds"])
                 )
                 watchdog_id = cur.fetchone()[0]
             self.conn.commit()            

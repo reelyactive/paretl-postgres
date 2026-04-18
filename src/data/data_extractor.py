@@ -41,7 +41,7 @@ class DataExtractor:
         placeHolders = ",".join(["%s"] * len(receivers))
         query = f"""
             SELECT 
-            timestamp,
+            DATE_TRUNC('second', timestamp)::timestamp AS timestamp,
             raddec->>'transmitterId' AS transmitterid,
             raddec->>'receiverId' AS receiverid,
             raddec->>'rssi' AS rssi,
@@ -51,6 +51,8 @@ class DataExtractor:
             AND raddec->>'receiverId' IN ({placeHolders})
         """
         
+        
+        
         params = [startTs, endTs] + receivers
       
         with self.conn.cursor() as cur:
@@ -59,7 +61,6 @@ class DataExtractor:
             colnames = [desc[0] for desc in cur.description]
 
         df = pd.DataFrame(rows, columns=colnames)
-        print(df)
         
         if len(df) == 0:
             print("Extraction from database results in an empty table")
