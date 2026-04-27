@@ -70,8 +70,14 @@ if __name__ == "__main__":
     #cfg = load_config("config/config.json")
     setupLogging(cfg.get("log_level", "INFO"))
     runETL(cfg)
+
+    print(dry_run)
+    dry_run=cfg.get("dry_run", False)
+    if dry_run:
+        logging.info("Please pay attention: you are running with the Dry Run mode = true - no changes were made to the database.")
+            
     logging.info("Process completed.")
-    logging.info("Yippee-ki-yay.")
+
 
     
 
