@@ -22,6 +22,18 @@ TRANSMITTERS = [
     ("deadbeef0002", 3),
     ("112233445566", 3),
     ("ffeeddccbbaa", 3),
+    ("tada55beac04", 3),
+    ("tada55beac05", 3),
+    ("tada55beac06", 3),
+    ("tabbccddeeff", 3),
+    ("tabbccddee01", 3),
+    ("tabbccddee02", 3),
+    ("tafe00112233", 2),
+    ("tafe00112244", 2),
+    ("teadbeef0001", 3),
+    ("teadbeef0002", 3),
+    ("t12233445566", 3),
+    ("tfeeddccbbaa", 3),
 ]
 
 RECEIVERS = [
@@ -37,7 +49,7 @@ JITTER_MS         = 200     # ±200ms jitter on each interval
 
 # Each transmitter gets a random window width between 5 min and 6 hours
 #BASE_START_UTC = datetime(2026, 4, 18, 14, 0, 0, tzinfo=timezone.utc)  # 10:00 EDT
-BASE_START_UTC = datetime.now(tz=timezone.utc).replace(hour=14, minute=0, second=0, microsecond=0)  # today at 14:00 UTC
+BASE_START_UTC = datetime.now(tz=timezone.utc)#.replace(hour=14, minute=0, second=0, microsecond=0)  # today at 14:00 UTC
 
 # ---------------------------------------------------------------------------
 # Build per-transmitter time windows
@@ -48,8 +60,8 @@ random.seed(42)  # remove for different data on each run
 transmitter_windows = {}
 for tx_id, tx_type in TRANSMITTERS:
     offset_min   = random.randint(0, 120)    
-    window_sec = random.randint(1, 800)  # 1 second to 15 min
-    start      = BASE_START_UTC + timedelta(seconds=random.randint(0, 7200))
+    window_sec = random.randint(0, 180) 
+    start      = BASE_START_UTC + timedelta(seconds=random.randint(-800, 0))
     end        = start + timedelta(seconds=window_sec)
     transmitter_windows[(tx_id, tx_type)] = (start, end)
 

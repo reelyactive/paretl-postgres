@@ -52,10 +52,10 @@ class DataExtractor:
         """
         
         
-        
         params = [startTs, endTs] + receivers
       
         with self.conn.cursor() as cur:
+            #print(cur.mogrify(query, params).decode('utf-8'))
             cur.execute(query, params)
             rows = cur.fetchall()
             colnames = [desc[0] for desc in cur.description]
@@ -63,7 +63,7 @@ class DataExtractor:
         df = pd.DataFrame(rows, columns=colnames)
         
         if len(df) == 0:
-            print("Extraction from database results in an empty table")
+            logging.info("Extraction from database results in an empty table")
             sys.exit(1)
         else:
             logging.info(f"[Extractor] {len(df)} rows extracted from database")
